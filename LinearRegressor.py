@@ -17,20 +17,28 @@ class LinearRegressor():
 
         TODO: You must implement the cost function and return an scalar that corresponds to the error produced by the Linear Regressor with its current configuration
         """
-        cost = 0
+        sumatory = 0
+        for x in range(m):
+            sumatory += (y_pred[0][x] -y[0][x])**2
+
+        cost = 1/(2*m) * sumatory
         return cost
+
 
     def _hypothesis(self, X):
         """
         Calculates the hypothesis for the given examples using the current self.theta values.
         X: an m x n array of m samples/examples with n features each.
+        Creo que X es en realidad nxm
+        transpose de theta es 1xn y * nxm = 1xm
 
         TODO: you must return a (1 x m) array, which corresponds to the estimated value for each of the m samples
         """
         # * is element wise multiplication
         # numpy.dot(), or @ operator will work
-        emptyResult = np.zeros((1,X.shape[1]))
-        return emptyResult
+        result =  np.transpose(self.theta)@ X 
+        #emptyResult = np.zeros((1,X.shape[1]))
+        return  result 
 
     def _cost_function_derivative(self, y_pred, y, X, m):
         """
@@ -42,8 +50,16 @@ class LinearRegressor():
 
         TODO: You must implement the calculation of derivatives. An (n x 1) array that corresponds to the gradient of current theta values (the derivative per theta parameter) must be returned.
         """
-        empty_derivatives = np.zeros((X.shape[0],1))
-        return empty_derivatives
+
+        derivatives= np.zeros((X.shape[0],1))
+        for j in range(X.shape[0]):
+            auxsum = 0
+            for i in range(m):
+                auxsum+=(y_pred[0][i] -y[0][i])*X[j][i]
+            derivatives[j][0] = self.theta[j][0] - self.alpha * 1/m * auxsum
+
+        #empty_derivatives = np.zeros((X.shape[0],1))
+        return derivatives
 
     def fit(self, X, y):
         """
@@ -61,18 +77,18 @@ class LinearRegressor():
 
         for i in range(self.epochs):
             # Get predictions
-            # y_pred = ...
+            y_pred = self.predict(X)
 
             # calculate cost
             # cost = ...
-            cost = 0
+            cost = self._cost_function(y_pred, y, m)
             
 
             # gradient is an (n) x 1 array, it refers to the derivate per theta
-            # gradient = ...
+            gradient = self._cost_function_derivative(y_pred, y, X, m)
 
             # delta/update rule
-            # self.theta = ...
+            self.theta = gradient
 
             self.costs.append(cost)
             pass
@@ -87,7 +103,7 @@ class LinearRegressor():
 
         TODO: You must return a (1 x m') array that includes the predictions for the given m' samples.
         """
-
         # ! You could simply call the hypothesis here
-        empty_predictions = np.zeros((1,X.shape[1]))
-        return empty_predictions
+        predictions= self._hypothesis(X)
+        #empty_predictions = np.zeros((1,X.shape[1]))
+        return  predictions
